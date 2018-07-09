@@ -28,13 +28,7 @@ define( 'MAGIC_DASHBOARD_COOKIE_SEP', '|||');
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/plugin.php';
 
-require_once plugin_dir_path( __FILE__ ) . 'includes/util/dashboard.php';
-
-require_once plugin_dir_path( __FILE__ ) . 'includes/admin/dashboard.php';
-
-if ( is_admin() ) {
-  require_once plugin_dir_path( __FILE__ ) . 'includes/admin/plugin-activation.php';
-}
+require_once 'includes/util/page-templates.php';
 
 register_activation_hook( __FILE__, function () {
   flush_rewrite_rules();

@@ -1,10 +1,14 @@
 <?php
 if ( empty( $_SERVER['MAGIC_REFERER'] ) ) {
-  $_SERVER['MAGIC_REFERER'] = $_SERVER['REDIRECT_URL'];
+  $_SERVER['MAGIC_REFERER'] = explode( '?', $_SERVER['REDIRECT_URL'])[0];
 }
 
-if ( !function_exists( 'magic_start_request' ) ) {
-  function magic_request( string $referer = '/' ) {
+if ( !function_exists( 'magic_request' ) ) {
+  function magic_request( string $referer = null ) {
+    if ( empty( $referer ) ) {
+      $referer = explode( '?', $_SERVER['REDIRECT_URL'] )[0];
+    }
+
     $_SERVER['MAGIC_REFERER'] = $referer;
   }
 }
@@ -43,11 +47,14 @@ if ( !function_exists( 'magic_add_query_arg' ) ) {
         $r = urlencode($r);
 
         if ( !empty( $r ) && !empty( $k ) ) {
-          if ( !empty( $ref[$k] ) ) {
-            $r = urlencode($ref[$k] . ',' . $r);
+          $params = [];
+          $query = parse_url( $ref, PHP_URL_QUERY );
+          parse_str($query, $params);
+          if ( !empty( $params[$k] ) ) {
+            $ref = add_query_arg( $k, $r . ',' . $params[$k] );
+          } else {
+            $ref = add_query_arg( $k, $r, $ref );
           }
-
-          $ref = add_query_arg( $k, $r, $ref );
         }
       }
     }
@@ -55,13 +62,42 @@ if ( !function_exists( 'magic_add_query_arg' ) ) {
     $_SERVER['MAGIC_REFERER'] = $ref;
     return $_SERVER['MAGIC_REFERER'];
   }
+}
 
+if ( !function_exists( 'magic_add_query_error' ) ) {
+  function magic_add_query_error( string $err = 'unknown') {
+    magic_add_query_arg( ['error' => $err ] );
+  }
 }
 
 if ( !function_exists( 'magic_verify_nonce') ) {
   function magic_verify_nonce( string $nonce, string $slug ) {
     if( !wp_verify_nonce( $nonce, $slug ) ) {
-      magic_redirect( [ 'error' => 'nonce' ] );
+      magic_add_query_error( 'nonce' );
+    }
+
+    magic_redirect_if_error();
+  }
+}
+
+if ( !function_exists( 'magic_check_arguments') ) {
+  function magic_check_arguments( array $args = [] ) {
+    foreach ( $args as $key => $msg ) {
+      if ( empty( $_POST[$key] ) ) {
+        magic_add_query_arg( ['error' => $msg]);
+      }
+    }
+
+    magic_redirect_if_error();
+  }
+}
+
+if ( !function_exists( 'magic_require_login' ) ) {
+  function magic_require_login() {
+    $current_user = wp_get_current_user();
+    if ( $current_user->ID === 0) {
+      wp_redirect( magic_get_option( 'magic_user_admin_login_page', '/login' ) );
+      exit;
     }
   }
 }
