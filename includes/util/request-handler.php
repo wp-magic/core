@@ -71,24 +71,68 @@ if ( !function_exists( 'magic_add_query_error' ) ) {
 }
 
 if ( !function_exists( 'magic_verify_nonce') ) {
-  function magic_verify_nonce( string $nonce, string $slug ) {
+  function magic_verify_nonce( string $nonce, string $slug, bool $redirect = true ) {
     if( !wp_verify_nonce( $nonce, $slug ) ) {
       magic_add_query_error( 'nonce' );
+      if ( !$redirect ) {
+        return true;
+      }
+    }
+
+    if ( $redirect ) {
+      magic_redirect_if_error();
+    }
+  }
+}
+
+if ( !function_exists( 'magic_check_arguments' ) ) {
+  function magic_check_arguments( array $args = [] ) {
+    foreach ( $args as $key => $msg ) {
+      if ( empty( $_POST[$key] ) ) {
+        magic_add_query_arg( ['error' => $msg] );
+      }
     }
 
     magic_redirect_if_error();
   }
 }
 
-if ( !function_exists( 'magic_check_arguments') ) {
-  function magic_check_arguments( array $args = [] ) {
-    foreach ( $args as $key => $msg ) {
-      if ( empty( $_POST[$key] ) ) {
-        magic_add_query_arg( ['error' => $msg]);
+if ( !function_exists( 'magic_parse_arguments' ) ) {
+  function magic_parse_arguments( array $args = [], array $ctx = [] ) {
+    $defaults = [
+      'query' => [],
+      'errors' => [],
+    ];
+
+    $ctx = array_merge( $defaults, $ctx );
+
+    foreach ( $args as $key => $error ) {
+      if ( !empty( $_POST[$key] ) ) {
+        $ctx['query'][$key] = $_POST[$key];
+      } else if ( !empty( $error ) ) {
+        if ( $key === 'nonce' ) {
+          $ctx['errors'][] = $key;
+        } else {
+          $ctx['errors'][] = $error;
+        }
+      } else {
+        $ctx['query'][$key] = '';
       }
     }
 
-    magic_redirect_if_error();
+    if ( !empty( $args['nonce'] ) && !wp_verify_nonce( $ctx['query']['nonce'], $args['nonce'] ) ) {
+      $ctx['errors'][] = 'nonce';
+    }
+
+    if ( defined( 'MAGIC_GDPR_SLUG' ) ) {
+      if ( 'on' === $ctx['query']['allow_cookies'] ) {
+        magic_gdpr_set_cookies( array( 'settings', 'auth' ) );
+      } else if ( !magic_gdpr_check_cookies() ) {
+        $ctx['errors'][] = 'cookie';
+      }
+    }
+
+    return $ctx;
   }
 }
 
@@ -99,5 +143,7 @@ if ( !function_exists( 'magic_require_login' ) ) {
       wp_redirect( magic_get_option( 'magic_user_admin_login_page', '/login' ) );
       exit;
     }
+
+    return $current_user;
   }
 }
