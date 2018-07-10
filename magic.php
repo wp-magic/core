@@ -28,8 +28,6 @@ define( 'MAGIC_DASHBOARD_COOKIE_SEP', '|||');
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/plugin.php';
 
-require_once 'includes/util/page-templates.php';
-
 register_activation_hook( __FILE__, function () {
   flush_rewrite_rules();
 } );
