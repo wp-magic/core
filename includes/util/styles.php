@@ -6,8 +6,8 @@ function magic_register_style($slug, $base_path ) {
 
   $plugin_path = str_replace( $content_url, '', $plugins_url );
 
-  $local_path = $plugin_path . '/' . $base_path;
+  $local_path = $plugin_path . '/' . $base_path . '/' . $slug . '.less';
 
-  wp_register_style( $slug, $local_path . '/' . $slug . '.less' );
+  wp_register_style( $slug, $local_path );
   wp_enqueue_style( $slug );
 }
