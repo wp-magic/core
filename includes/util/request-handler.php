@@ -108,7 +108,7 @@ if ( !function_exists( 'magic_parse_arguments' ) ) {
 
     foreach ( $args as $key => $error ) {
       if ( !empty( $_POST[$key] ) ) {
-        $ctx['query'][$key] = $_POST[$key];
+        $ctx['query'][$key] = sanitize_textarea_field( $_POST[$key] );
       } else if ( !empty( $error ) ) {
         if ( $key === 'nonce' ) {
           $ctx['errors'][] = $key;
