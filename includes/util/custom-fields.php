@@ -28,7 +28,6 @@ if ( function_exists( 'register_field_group') ) {
   				'prepend' => '',
   				'append' => '',
   			),
-
   			'select' => array (
   				'type' => 'select',
   				'choices' => array (
@@ -65,6 +64,10 @@ if ( function_exists( 'register_field_group') ) {
 
   		$fields = [];
   	  foreach ( $atts['fields'] as $key => $field ) {
+        if ( empty( $field['type'] ) ) {
+          $field['type'] = 'text';
+        }
+
   	    $default_field = $default_fields[$field['type']];
   	    $field['name'] = $key;
   	    $field['key'] = $atts['slug'] . '_' . $key;
