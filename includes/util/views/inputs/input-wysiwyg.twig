@@ -1,1 +1,9 @@
+{% if setting.label %}
+<h3>{{ setting.label }}</h3>
+{% endif %}
+
+{% if setting.instructions %}
+<div>{{ setting.instructions }}</div>
+{% endif %}
+
 {{ function( 'wp_editor', setting.value, setting.name, setting.config ) }}
