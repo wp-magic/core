@@ -149,7 +149,7 @@ if ( !function_exists( 'magic_is_logged_in' ) ) {
 }
 
 if ( !function_exists( 'magic_require_login' ) ) {
-  function magic_require_login( $redirect, int $user_id = -1 ) {
+  function magic_require_login( $redirect = 0, int $user_id = -1 ) {
     $is_logged_in = magic_is_logged_in();
     $is_same_user = magic_is_same_user( $user_id );
 
