@@ -108,7 +108,11 @@ if ( !function_exists( 'magic_parse_arguments' ) ) {
 
     foreach ( $args as $key => $error ) {
       if ( !empty( $_POST[$key] ) ) {
-        $ctx['query'][$key] = sanitize_textarea_field( $_POST[$key] );
+        if ( $key === 'nonce' && !wp_verify_nonce( $_POST[$key], $error ) ) {
+          $ctx['errors'][] = 'nonce';
+        } else {
+          $ctx['query'][$key] = sanitize_textarea_field( $_POST[$key] );
+        }
       } else if ( !empty( $error ) ) {
         if ( $key === 'nonce' ) {
           $ctx['errors'][] = $key;
@@ -118,10 +122,6 @@ if ( !function_exists( 'magic_parse_arguments' ) ) {
       } else {
         $ctx['query'][$key] = '';
       }
-    }
-
-    if ( !empty( $args['nonce'] ) && !wp_verify_nonce( $ctx['query']['nonce'], $args['nonce'] ) ) {
-      $ctx['errors'][] = 'nonce';
     }
 
     if ( defined( 'MAGIC_GDPR_SLUG' ) ) {
@@ -136,14 +136,36 @@ if ( !function_exists( 'magic_parse_arguments' ) ) {
   }
 }
 
+if ( !function_exists( 'magic_is_same_user') ) {
+  function magic_is_same_user( int $user_id = -1 ) {
+    return $user_id === -1 || get_current_user_id() === $user_id;
+  }
+}
+
+if ( !function_exists( 'magic_is_logged_in' ) ) {
+  function magic_is_logged_in() {
+    return get_current_user_id() > 0;
+  }
+}
+
 if ( !function_exists( 'magic_require_login' ) ) {
-  function magic_require_login() {
-    $current_user = wp_get_current_user();
-    if ( $current_user->ID === 0) {
-      wp_redirect( magic_get_option( 'magic_user_admin_login_page', '/login' ) );
-      exit;
+  function magic_require_login( $redirect, int $user_id = -1 ) {
+    $is_logged_in = magic_is_logged_in();
+    $is_same_user = magic_is_same_user( $user_id );
+
+    if ( !$is_logged_in || !$is_same_user ) {
+      if ( $redirect !== false ) {
+        if ( !$redirect ) {
+          $redirect = magic_get_option( 'magic_user_admin_login_page', '/login' );
+        }
+
+        wp_redirect( $redirect );
+        exit;
+      }
+
+      return false;
     }
 
-    return $current_user;
+    return true;
   }
 }
