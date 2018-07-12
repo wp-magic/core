@@ -46,6 +46,7 @@ function magic_dashboard_add_submenu_page( array $atts = [] ) {
     'slug' => 'magic_admin_panel',
     'settings' => [],
     'parent' => MAGIC_DASHBOARD_SLUG,
+    'is_array' => false,
   );
 
   $atts = shortcode_atts( $default, $atts );
@@ -57,31 +58,40 @@ function magic_dashboard_add_submenu_page( array $atts = [] ) {
     $atts['capability'],
     $atts['slug'],
     function() use ( $atts ) {
-      magic_dashboard_render_admin_page( $atts['title'], $atts['settings'] );
+      magic_dashboard_render_admin_page( $atts );
     }
   );
 }
 
-function magic_dashboard_render_admin_page( string $title, array $settings ) {
+function magic_dashboard_render_admin_page( $atts ) {
+
   $context = Timber::get_context();
 
   if ( !empty( $_POST ) ) {
-    $context['settings'] = magic_dashboard_set_options( $settings );
+    $context['settings'] = magic_dashboard_set_options( $atts );
   } else {
-    $context['settings'] = magic_dashboard_get_options( $settings );
+    $context['settings'] = magic_dashboard_get_options( $atts );
   }
 
-  $context['title'] = $title;
+  $context['title'] = $atts['title'];
+  $context['slug'] = $atts['slug'];
 
   Timber::render( 'views/dashboard-subpage.twig', $context );
 }
 
-function magic_dashboard_get_options( $settings ) {
+function magic_dashboard_get_option_name( string $slug, string $name ) {
+  $option_name = $slug . '_' . $name;
+  return $option_name;
+}
+
+function magic_dashboard_get_options( $atts ) {
   $options = array();
-  foreach ( $settings as $setting ) {
+
+  foreach ( $atts['settings'] as $setting ) {
     $name = $setting['name'];
+    $option_name = magic_dashboard_get_option_name( $atts['slug'], $name );
     if ($setting['type'] !== 'header') {
-      $setting['value'] = magic_get_option( $name );
+      $setting['value'] = magic_get_option( $option_name, $setting['default'] );
     }
 
     $options[$name] = $setting;
@@ -90,24 +100,28 @@ function magic_dashboard_get_options( $settings ) {
   return $options;
 }
 
-function magic_dashboard_set_options( array $settings = [] ) {
-  if ( is_array( $_POST[MAGIC_DASHBOARD_SLUG] ) ) {
-    magic_set_option( MAGIC_DASHBOARD_SLUG, $_POST[MAGIC_DASHBOARD_SLUG] );
-  } else {
-    foreach ( $settings as $setting ) {
-      $name = $setting['name'];
-      if ( isset( $_POST[$name] ) ) {
-        $value = $_POST[$name];
+function magic_dashboard_set_options( $atts ) {
+  $options = [];
+  foreach ( $atts['settings'] as $setting ) {
+    $name = $setting['name'];
+    $option_name = magic_dashboard_get_option_name( $atts['slug'], $name );
 
-        magic_set_option( $name, $value );
-      }
+    if ( $setting['type'] !== 'header' ) {
+
+      $setting['value'] = !empty( $_POST[$name] )
+        ? $_POST[$name]
+        : $setting['default'];
+
+      magic_set_option( $option_name, $setting['value'] );
     }
+
+    $options[$name] = $setting;
   }
 
-  return magic_dashboard_get_options( $settings );
+  return $options;
 }
 
-function magic_dashboard_render_settings_fields( array $settings = [] ) {
+function magic_dashboard_render_settings_fields( string $slug, array $settings = [] ) {
   foreach ( $settings as $key => $setting ) {
     $default = array (
       'default' => '',
@@ -119,16 +133,9 @@ function magic_dashboard_render_settings_fields( array $settings = [] ) {
 
     $setting['type'] = !empty( $setting['type'] ) ? $setting['type'] : 'text';
 
-    if ( $setting['type'] !== 'header' ) {
-      $data = get_option( $setting['name'], $setting['default'] );
-      $setting['value']  = esc_attr( $data );
-    }
-
     if ($setting['type'] === 'image') {
-      $upload_field = $setting['name'] . '_upload';
-      $name = $setting['name'];
-
-      $setting['value'] = magic_get_option( $setting['name'] );
+      $option_name = magic_dashboard_get_option_name($slug, $setting['name'] );
+      $setting['value'] = magic_get_option( $option_name, $setting['default'] );
     }
 
     $setting['template'] = 'inputs/input-' . $setting['type'] . '.twig';
