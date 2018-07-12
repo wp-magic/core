@@ -125,7 +125,7 @@ if ( !function_exists( 'magic_parse_arguments' ) ) {
     }
 
     if ( defined( 'MAGIC_GDPR_SLUG' ) ) {
-      if ( 'on' === $ctx['query']['allow_cookies'] ) {
+      if ( !empty( $_POST['allow_cookies'] ) && $_POST['allow_cookies'] === 'on' ) {
         magic_gdpr_set_cookies( array( 'settings', 'auth' ) );
       } else if ( !magic_gdpr_check_cookies() ) {
         $ctx['errors'][] = 'cookie';
