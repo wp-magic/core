@@ -10,36 +10,30 @@ add_action( 'admin_menu', function () {
   $settings = array(
     array (
       'type' => 'header',
-      'name' => MAGIC_DASHBOARD_SLUG . '_header_single_page',
-      'label' => 'Error Messsages',
+      'name' => 'header_single_page',
+      'label' => 'Error Messages',
     ),
 
     array (
-      'name' => MAGIC_DASHBOARD_SLUG . '[nonce]',
+      'name' => 'nonce',
       'type' => 'text',
       'default' => 'Security Error. Please retry later.',
       'label' => 'Nonce Error',
     ),
     array (
-      'name' => MAGIC_DASHBOARD_SLUG . '[signon]',
+      'name' => 'signon',
       'type' => 'text',
       'default' => 'Login Error. Please try again later.',
       'label' => 'Login Error',
     ),
     array (
-      'name' => MAGIC_DASHBOARD_SLUG . '[password_mismatch]',
+      'name' => 'password_mismatch',
       'type' => 'text',
       'default' => 'The passwords do not match.',
       'label' => 'Password Mismatch Error',
     ),
     array (
-      'name' => MAGIC_DASHBOARD_SLUG . '[password_mismatch]',
-      'type' => 'text',
-      'default' => 'The passwords do not match.',
-      'label' => 'Password Mismatch Error',
-    ),
-    array (
-      'name' => MAGIC_DASHBOARD_SLUG . '[insert]',
+      'name' => 'insert',
       'type' => 'text',
       'default' => 'Item could not be added.',
       'label' => 'Creation Error',
@@ -51,6 +45,7 @@ add_action( 'admin_menu', function () {
     'title' => $title,
     'slug' => MAGIC_DASHBOARD_SLUG . '_error_messages',
     'settings' => $settings,
+    'is_array' => true,
   );
 
   magic_dashboard_add_submenu_page( $submenu_config );
