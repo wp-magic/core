@@ -12,6 +12,7 @@ require_once 'util/styles.php';
 require_once 'util/request-handler.php';
 // require_once 'util/magic-db.php';
 require_once 'util/custom-fields.php';
+require_once 'util/magic-date-object.php';
 require_once 'util/login-or-create-user.php';
 require_once 'util/page-templates.php';
 
