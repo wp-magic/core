@@ -1,10 +1,10 @@
 <?php
 
-function magic_deserialize_cookie( string $str ) {
+function magic_deserialize_cookie( string $str, string $sep = MAGIC_GDPR_COOKIE_SEP ) {
   $string_array = explode( PHP_EOL, $str);
   $cookies = [];
   foreach ( $string_array as $string ) {
-    $arr = explode( MAGIC_DASHBOARD_COOKIE_SEP, $string );
+    $arr = explode( $sep, $string );
 
     if ( empty( $arr ) || empty( $arr[0] ) ) {
       break;
@@ -28,8 +28,8 @@ function magic_deserialize_cookie( string $str ) {
   return $cookies;
 }
 
-function magic_serialize_cookie( array $array ) {
-  $array = implode( MAGIC_DASHBOARD_COOKIE_SEP, $array );
+function magic_serialize_cookie( array $array, string $sep = MAGIC_GDPR_COOKIE_SEP ) {
+  $array = implode( $sep, $array );
   $string = implode( PHP_EOL, $array );
   return $string;
 }
