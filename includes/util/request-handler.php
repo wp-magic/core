@@ -1,11 +1,15 @@
 <?php
 if ( empty( $_SERVER['MAGIC_REFERER'] ) ) {
-  $_SERVER['MAGIC_REFERER'] = explode( '?', $_SERVER['REDIRECT_URL'])[0];
+  if ( !empty( $_SERVER['REDIRECT_URL'] ) ) {
+    $_SERVER['MAGIC_REFERER'] = explode( '?', $_SERVER['REDIRECT_URL'])[0];
+  } else {
+    $_SERVER['MAGIC_REFERER'] = '';
+  }
 }
 
 if ( !function_exists( 'magic_request' ) ) {
   function magic_request( string $referer = null ) {
-    if ( empty( $referer ) ) {
+    if ( empty( $referer ) && !empty( $_SERVER['REDIRECT_URL'] ) ) {
       $referer = explode( '?', $_SERVER['REDIRECT_URL'] )[0];
     }
 
