@@ -91,7 +91,7 @@ function magic_dashboard_get_options( $atts ) {
     $name = $setting['name'];
     $option_name = magic_dashboard_get_option_name( $atts['slug'], $name );
     if ($setting['type'] !== 'header') {
-      $setting['value'] = magic_get_option( $option_name, $setting['default'] );
+      $setting['value'] = magic_get_option( $option_name, !empty($setting['default']) ? $setting['default'] : 0 );
     }
 
     $options[$name] = $setting;
