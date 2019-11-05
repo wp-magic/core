@@ -45,7 +45,7 @@ function magic_appointments_register_required_plugins() {
 	 * Array of configuration settings. Amend each line as needed.
 	 */
 	$config = array(
-		'id'           => MAGIC_APPOINTMENTS_SLUG,                 // Unique ID for hashing notices for multiple instances of TGMPA.
+		'id'           => 'magic-requirements',                 // Unique ID for hashing notices for multiple instances of TGMPA.
 		'default_path' => '',                      // Default absolute path to bundled plugins.
 		'menu'         => 'magic_pa-install-plugins', // Menu slug.
 		'parent_slug'  => 'plugins.php',            // Parent menu slug.
