@@ -1,6 +1,6 @@
 <?php
 
-function magic_deserialize_cookie( string $str, string $sep = MAGIC_GDPR_COOKIE_SEP ) {
+function magic_deserialize_cookie( string $str, string $sep = MAGIC_DASHBOARD_COOKIE_SEP ) {
   $string_array = explode( PHP_EOL, $str);
   $cookies = [];
   foreach ( $string_array as $string ) {
@@ -28,7 +28,7 @@ function magic_deserialize_cookie( string $str, string $sep = MAGIC_GDPR_COOKIE_
   return $cookies;
 }
 
-function magic_serialize_cookie( array $array, string $sep = MAGIC_GDPR_COOKIE_SEP ) {
+function magic_serialize_cookie( array $array, string $sep = MAGIC_DASHBOARD_COOKIE_SEP ) {
   $array = implode( $sep, $array );
   $string = implode( PHP_EOL, $array );
   return $string;
