@@ -1,4 +1,10 @@
 <?php
+/**
+ * Serialize / Deserialize cookies
+ *
+ * @package Magic
+ * @since 0.0.1
+ */
 
 /**
  * Deserialize a cookie string into an array.
