@@ -97,8 +97,10 @@ function magic_dashboard_render_admin_page( $atts ) {
  *
  * @since 0.0.1
  *
- * @param string $slug prepended
- * @param string $name appended
+ * @param string $slug prepended to returned string.
+ * @param string $name appended to returned string.
+ *
+ * @return string $option_name $slug and $name, joined by _.
  */
 function magic_dashboard_get_option_name( string $slug, string $name ) {
 	$option_name = $slug . '_' . $name;
@@ -130,17 +132,21 @@ function magic_dashboard_get_options( $atts ) {
 
 /**
  * Update Magic Options
+ *
+ * @param array $atts includes settings and slug fields.
  */
-function magic_dashboard_set_options( $atts ) {
+function magic_dashboard_set_options( array $atts ) {
 	$options = [];
+
+	$post = magic_verify_nonce( MAGIC_DASHBOARD, false );
 
 	foreach ( $atts['settings'] as $setting ) {
 		$name        = $setting['name'];
 		$option_name = magic_dashboard_get_option_name( $atts['slug'], $name );
 
 		if ( 'header' !== $setting['type'] ) {
-			$setting['value'] = ! empty( $_POST[ $name ] )
-			? sanitize_text_field( wp_unslash( $_POST[ $name ] ) )
+			$setting['value'] = ! empty( $post[ $name ] )
+			? sanitize_text_field( wp_unslash( $post[ $name ] ) )
 			: $setting['default'];
 
 			magic_set_option( $option_name, $setting['value'] );
@@ -152,6 +158,14 @@ function magic_dashboard_set_options( $atts ) {
 	return $options;
 }
 
+/**
+ * Renders magic setting fields in menu pages
+ *
+ * @since 0.0.1
+ *
+ * @param string $slug of this setting field group.
+ * @param array  $settings fields in this setting field group.
+ */
 function magic_dashboard_render_settings_fields( string $slug, array $settings = [] ) {
 	foreach ( $settings as $key => $setting ) {
 		$default = array(
@@ -164,14 +178,14 @@ function magic_dashboard_render_settings_fields( string $slug, array $settings =
 
 		$setting['type'] = ! empty( $setting['type'] ) ? $setting['type'] : 'text';
 
-		if ( $setting['type'] === 'image' ) {
+		if ( 'image' === $setting['type'] ) {
 			$option_name      = magic_dashboard_get_option_name( $slug, $setting['name'] );
 			$setting['value'] = magic_get_option( $option_name, $setting['default'] );
 		}
 
 		$setting['template'] = 'inputs/input-' . $setting['type'] . '.twig';
 
-		if ( $setting['type'] === 'dropdown-pages' ) {
+		if ( 'dropdown-pages' === $setting['type'] ) {
 			$settings['dropdown_args'] = array(
 				'echo' => 0,
 				'name' => $setting['name'],

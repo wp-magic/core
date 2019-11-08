@@ -1,4 +1,20 @@
 <?php
+/**
+ * Returns a date array with nicely named fields
+ *
+ * @package Magic
+ * @since 0.0.1
+ */
+
+/**
+ * Convert the $timestamp into a key => value array
+ *
+ * @since 0.0.1
+ *
+ * @param int $timestamp to convert to date.
+ *
+ * @return array with various fields related to the date.
+ */
 function magic_date_object( int $timestamp ) {
 	$month_index = date( 'n', $timestamp );
 	$day_index   = date( 'w', $timestamp );

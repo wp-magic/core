@@ -1,6 +1,21 @@
 <?php
+/**
+ * Used on both user login and user registration to either log a user in or create an account and then log the user in.
+ *
+ * @package Magic
+ * @since 0.0.1
+ */
 
 if ( ! function_exists( 'magic_login_or_create_user' ) ) {
+	/**
+	 * First checks, if user is logged, then if an account exists, then creates the account if not, then logs in.
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param array $ctx the timber context array.
+	 *
+	 * @return array $ctx the timber context array, enriched with user or errors.
+	 */
 	function magic_login_or_create_user( array $ctx ) {
 		$ctx['user'] = get_current_user_id();
 
@@ -40,9 +55,8 @@ if ( ! function_exists( 'magic_login_or_create_user' ) ) {
 					foreach ( $ctx['user']->errors as $key => $val ) {
 						$ctx['errors'][] = $key;
 					}
-
-					  return $ctx;
 				}
+				return $ctx;
 			}
 
 			$user        = wp_signon();

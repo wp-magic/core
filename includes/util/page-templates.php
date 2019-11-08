@@ -1,11 +1,25 @@
 <?php
+/**
+ * Add page templates programmatically.
+ *
+ * @package Magic
+ * @since 0.0.1
+ */
 
+/**
+ * Filter that adds page templates.
+ *
+ * @since 0.0.1
+ *
+ * @param array  $templates list of templates to add.
+ * @param string $root root plugin_dir_path to add from.
+ */
 function magic_page_templates( array $templates = [], string $root = '' ) {
 	if ( ! $root ) {
 		$root = plugin_dir_path( __FILE__ );
 	}
 
-	// Add a filter to the wp 4.7 version attributes metabox
+	// Add a filter to the wp 4.7 version attributes metabox.
 	add_filter(
 		'theme_page_templates',
 		function ( $posts_templates ) use ( $templates ) {
@@ -14,21 +28,21 @@ function magic_page_templates( array $templates = [], string $root = '' ) {
 		}
 	);
 
-	// Add a filter to the save post to inject our template into the page cache
+	// Add a filter to the save post to inject our template into the page cache.
 	add_filter(
 		'wp_insert_post_data',
 		function( $atts ) use ( $templates ) {
-			// Create the key used for the themes cache
+			// Create the key used for the themes cache.
 			$cache_key = 'page_templates-' . md5( get_theme_root() . '/' . get_stylesheet() );
 
 			// Retrieve the cache list.
-			// If it doesn't exist, or it's empty prepare an array
+			// If it doesn't exist, or it's empty prepare an array.
 			$new_templates = wp_get_theme()->get_page_templates();
 			if ( empty( $new_templates ) ) {
 				$new_templates = array();
 			}
 
-			// New cache, therefore remove the old one
+			// New cache, therefore remove the old one.
 			wp_cache_delete( $cache_key, 'themes' );
 
 			// Now add our template to the list of templates by merging our templates
@@ -36,7 +50,7 @@ function magic_page_templates( array $templates = [], string $root = '' ) {
 			$templates = array_merge( $templates, $new_templates );
 
 			// Add the modified cache to allow WordPress to pick it up for listing
-			// available templates
+			// available templates.
 			wp_cache_add( $cache_key, $templates, 'themes', 1800 );
 
 			return $atts;
@@ -44,19 +58,19 @@ function magic_page_templates( array $templates = [], string $root = '' ) {
 	);
 
 	// Add a filter to the template include to determine if the page has our
-	// template assigned and return it's path
+	// template assigned and return it's path.
 	add_filter(
 		'template_include',
 		function( $template ) use ( $templates, $root ) {
-			// Get global post
+			// Get global post.
 			global $post;
 
-			// Return template if post is empty
+			// Return template if post is empty.
 			if ( ! $post ) {
 				return $template;
 			}
 
-			// Return default template if we don't have a custom one defined
+			// Return default template if we don't have a custom one defined.
 			if ( ! isset(
 				$templates[ get_post_meta(
 					$post->ID,
@@ -73,14 +87,14 @@ function magic_page_templates( array $templates = [], string $root = '' ) {
 				true
 			);
 
-			// Just to be safe, we check if the file exist first
+			// Just to be safe, we check if the file exists first.
 			if ( file_exists( $file ) ) {
 				return $file;
 			} else {
-				echo 'Magic Page Templates in ' . $root . ' is missing a page template file : ' . $file;
+				echo esc_url_raw( wp_unslash( 'Magic Page Templates in ' . $root . ' is missing a page template file : ' . $file ) );
 			}
 
-			// Return template
+			// Return template.
 			return $template;
 		}
 	);
