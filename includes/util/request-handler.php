@@ -82,16 +82,21 @@ if ( ! function_exists( 'magic_redirect' ) ) {
 	 *
 	 * @since 0.0.1
 	 *
-	 * @param array $refs query args to add to the request.
+	 * @param string $to url to redirect to.
+	 * @param array  $args query args to add to the request.
 	 */
-	function magic_redirect( array $refs = [] ) {
-		if ( ! empty( $refs ) ) {
-			magic_add_query_arg( $refs );
+	function magic_redirect( string $to, array $args = [] ) {
+		if ( ! empty( $args ) ) {
+			magic_add_query_arg( $args );
 		}
 
-		$referer = magic_get_referer();
+		$to = esc_url_raw( $to );
 
-		wp_safe_redirect( $referer );
+		if ( ! $to ) {
+			$to = magic_get_referer();
+		}
+
+		wp_safe_redirect( $to );
 		exit;
 	}
 }
@@ -295,8 +300,7 @@ if ( ! function_exists( 'magic_require_login' ) ) {
 					$redirect = magic_get_option( 'magic_user_admin_login_page', '/login' );
 				}
 
-				wp_safe_redirect( $redirect );
-				exit;
+				magic_redirect( $redirect );
 			}
 
 			return false;
