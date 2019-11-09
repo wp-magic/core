@@ -70,7 +70,6 @@ function magic_dashboard_add_submenu_page( array $atts = [] ) {
 	);
 }
 
-
 /**
  * Render a submenu page using timber and twig
  *
@@ -80,9 +79,9 @@ function magic_dashboard_add_submenu_page( array $atts = [] ) {
  */
 function magic_dashboard_render_admin_page( $atts ) {
 	$context = Timber::get_context();
-	if ( ! empty( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
+	if ( magic_is_request_type( 'POST' ) ) {
 		$context['settings'] = magic_dashboard_set_options( $atts );
-	} else {
+	} elseif ( magic_is_request_type( 'GET' ) ) {
 		$context['settings'] = magic_dashboard_get_options( $atts );
 	}
 
