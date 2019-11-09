@@ -52,6 +52,7 @@ function magic_dashboard_add_submenu_page( array $atts = [] ) {
 		'slug'       => 'magic_admin_panel',
 		'settings'   => [],
 		'parent'     => MAGIC_DASHBOARD_SLUG,
+		'action'     => MAGIC_DASHBOARD_SLUG,
 		'is_array'   => false,
 	);
 
@@ -78,12 +79,17 @@ function magic_dashboard_add_submenu_page( array $atts = [] ) {
  * @param array $atts passed to add_submenu_page.
  */
 function magic_dashboard_render_admin_page( $atts ) {
-
 	$context = Timber::get_context();
 	if ( ! empty( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 		$context['settings'] = magic_dashboard_set_options( $atts );
 	} else {
 		$context['settings'] = magic_dashboard_get_options( $atts );
+
+		$context['settings']['nonce'] = array(
+			'name'  => 'nonce',
+			'type'  => 'hidden',
+			'value' => wp_create_nonce( $atts['action'] ),
+		);
 	}
 
 	$context['title'] = $atts['title'];
@@ -114,7 +120,7 @@ function magic_dashboard_get_option_name( string $slug, string $name ) {
  *
  * @param array $atts contains settings and slug.
  */
-function magic_dashboard_get_options( $atts ) {
+function magic_dashboard_get_options( array $atts ) {
 	$options = array();
 
 	foreach ( $atts['settings'] as $setting ) {
@@ -138,18 +144,22 @@ function magic_dashboard_get_options( $atts ) {
 function magic_dashboard_set_options( array $atts ) {
 	$options = [];
 
-	$post = magic_verify_nonce( MAGIC_DASHBOARD, false );
+	$post = magic_verify_nonce( $atts['action'], false );
 
 	foreach ( $atts['settings'] as $setting ) {
 		$name        = $setting['name'];
 		$option_name = magic_dashboard_get_option_name( $atts['slug'], $name );
 
-		if ( 'header' !== $setting['type'] ) {
-			$setting['value'] = ! empty( $post[ $name ] )
-			? sanitize_text_field( wp_unslash( $post[ $name ] ) )
-			: $setting['default'];
+		if ( 'header' !== $setting['type'] && 'nonce' !== $setting['name'] ) {
+			if ( ! empty( $post[ $name ] ) ) {
+				$setting['value'] = sanitize_text_field( wp_unslash( $post[ $name ] ) );
 
-			magic_set_option( $option_name, $setting['value'] );
+				$old_value = magic_get_option( $option_name );
+
+				if ( $old_value !== $setting['value'] ) {
+					magic_set_option( $option_name, $setting['value'] );
+				}
+			}
 		}
 
 		$options[ $name ] = $setting;
