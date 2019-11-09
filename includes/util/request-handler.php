@@ -44,6 +44,38 @@ if ( ! function_exists( 'magic_request' ) ) {
 	}
 }
 
+if ( ! function_exists( 'magic_request_type' ) ) {
+	/**
+	 * Get the type of the current request
+	 *
+	 * @since 0.0.1
+	 *
+	 * @return string REQUEST_METHOD
+	 */
+	function magic_request_type() {
+		return ! empty( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : 'GET';
+	}
+}
+
+if ( ! function_exists( 'magic_is_request_type' ) ) {
+	/**
+	 * Check the type of the current request
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param string $type 'GET', 'POST', 'PUT' etc.
+	 *
+	 * @return bool true if $type equals REQUEST_METHOD.
+	 */
+	function magic_is_request_type( string $type = 'GET' ) {
+		if ( empty( $_SERVER['REQUEST_METHOD'] ) ) {
+			return false;
+		}
+
+		return $type === $_SERVER['REQUEST_METHOD'];
+	}
+}
+
 if ( ! function_exists( 'magic_redirect' ) ) {
 	/**
 	 * Redirect a request
