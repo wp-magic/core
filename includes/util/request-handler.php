@@ -13,7 +13,7 @@ if ( ! function_exists( 'magic_get_referer' ) ) {
 	 * @since 0.0.1
 	 */
 	function magic_get_referer() {
-		$original_redirect = esc_url_raw( filter_input( $_SERVER, 'REDIRECT_URL' ) );
+		$original_redirect = esc_url_raw( filter_input( INPUT_SERVER, 'REDIRECT_URL' ) );
 		$redirect          = ! empty( $_SERVER['REDIRECT_URL'] ) && esc_url_raw( wp_unslash( $_SERVER['REDIRECT_URL'] ) );
 
 		if ( ! empty( $original_redirect ) ) {
@@ -98,12 +98,12 @@ if ( ! function_exists( 'magic_add_query_arg' ) ) {
 
 				if ( ! empty( $r ) && ! empty( $k ) ) {
 					$params = [];
-					$query  = wp_parse_url( $ref, PHP_URL_QUERY );
+					$query  = wp_parse_url( $referer, PHP_URL_QUERY );
 					parse_str( $query, $params );
 					if ( ! empty( $params[ $k ] ) ) {
 						$referer = add_query_arg( $k, $r . ',' . $params[ $k ] );
 					} else {
-						$referer = add_query_arg( $k, $r, $ref );
+						$referer = add_query_arg( $k, $r, $referer );
 					}
 				}
 			}
@@ -143,7 +143,7 @@ if ( ! function_exists( 'magic_verify_nonce' ) ) {
 			$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
 		}
 
-		if ( ! wp_verify_nonce( $nonce, $slug ) ) {
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, $slug ) ) {
 			magic_add_query_error( 'nonce' );
 
 			// Return to stop redirection.
