@@ -16,7 +16,7 @@ add_action(
 			]
 		);
 
-		$title = 'Magic Dashboard Settings';
+		$title = 'Magic Error Message Settings';
 
 		$settings = array(
 			[
