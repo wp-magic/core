@@ -10,9 +10,27 @@
 add_action(
 	'admin_menu',
 	function () {
+		$all_plugins = get_plugins();
+		$apl         = get_option( 'active_plugins' );
+
+		$plugins = [];
+		foreach ( $all_plugins as $key => $plugin ) {
+			if ( strpos( $key, 'magic-' ) === 0 ) {
+				$plugin['active'] = in_array( $key, $apl, true );
+				$plugins[ $key ] = [];
+
+				foreach ( $plugin as $pkey => $pvalue ) {
+					$plugins[ $key ][ strtolower( $pkey ) ] = $pvalue;
+				}
+			}
+		}
+
 		magic_dashboard_add_menu_page(
 			[
 				'title' => 'Magic',
+			],
+			[
+				'plugins' => $plugins,
 			]
 		);
 

@@ -1,4 +1,21 @@
 <div class="wrap">
   <h3>Magic Dashboard</h3>
-  <div>Not much to see. Yet.</div>
+  <div>
+    <h4>Installed Magic Plugins</h4>
+
+    <h5>Active:</h5>
+    {% for key, plugin in plugins %}
+      {% if plugin.active %}
+        {% include [ setting.template, 'dashboard-plugin-list-item.twig' ] with plugin %}
+      {% endif %}
+    {% endfor %}
+
+
+    <h5>Inactive:</h5>
+    {% for key, plugin in plugins %}
+      {% if not plugin.active %}
+        {% include [ setting.template, 'dashboard-plugin-list-item.twig' ] with plugin %}
+      {% endif %}
+    {% endfor %}
+  </div>
 </div>
