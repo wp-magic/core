@@ -7,13 +7,14 @@
  */
 
 /**
- * Add a page to the magic admin menu
+ * Add a menu entry and a page to the admin menu
  *
  * @since 0.0.1
  *
  * @param array $atts passed to add_menu_page.
+ * @param array $ctx additional timber context for this page.
  */
-function magic_dashboard_add_menu_page( array $atts = [] ) {
+function magic_dashboard_add_menu_page( array $atts = [], array $ctx = [] ) {
 	$default = array(
 		'title'      => 'Magic',
 		'slug'       => MAGIC_DASHBOARD_SLUG,
@@ -27,8 +28,12 @@ function magic_dashboard_add_menu_page( array $atts = [] ) {
 		$atts['title'],
 		$atts['capability'],
 		$atts['slug'],
-		function () {
+		function() use ( $ctx ) {
 			$context = Timber::get_context();
+
+			if ( ! empty( $ctx ) ) {
+				$context = array_merge( $context, $ctx );
+			}
 
 			Timber::render( plugin_dir_path( __FILE__ ) . 'views/dashboard.twig', $context );
 		},
